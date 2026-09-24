@@ -5,11 +5,11 @@ export const manifest = setupManifest({
   id: 'quai-dashboard',
   title: 'Quai Mining Dashboard',
   license: 'MIT',
-  packageRepo: 'https://github.com/AwfulWaffleMining/quai-dashboard-startos',
-  upstreamRepo: 'https://github.com/AwfulWaffleMining/quai-dashboard-startos',
+  packageRepo: 'https://github.com/Start9-Community/quai-dashboard-startos',
+  upstreamRepo: 'https://github.com/Start9-Community/quai-dashboard-startos',
   marketingUrl: 'https://www.awfulwafflemining.com',
   donationUrl:
-    'https://github.com/AwfulWaffleMining/quai-dashboard-startos/blob/main/DONATE.md',
+    'https://github.com/Start9-Community/quai-dashboard-startos/blob/main/DONATE.md',
   description: { short, long },
   volumes: ['main'],
   images: {
@@ -25,7 +25,7 @@ export const manifest = setupManifest({
       optional: false,
       metadata: {
         title: 'Quai Network',
-        icon: 'https://raw.githubusercontent.com/AwfulWaffleMining/go-quai-startos/main/icon.svg',
+        icon: 'https://raw.githubusercontent.com/Start9-Community/go-quai-startos/main/icon.svg',
       },
     },
   },

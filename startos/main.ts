@@ -6,7 +6,6 @@ import {
   nodeRpcHostId,
   nodeRpcPort,
   nodeStratumApiPort,
-  nodeStratumApiPortLegacy,
   nodeStratumHostId,
   stratumInterfaces,
   uiPort,
@@ -18,30 +17,22 @@ export const main = sdk.setupMain(async ({ effects }) => {
   const depResult = await sdk.checkDependencies(effects)
   depResult.throwIfNotSatisfied()
 
-  // The node's stratum API over the LXC bridge. Reactive: if go-quai's assigned
-  // port changes, this restarts with the new address.
-  const bridgeTo = async (internalPort: number) =>
-    sdk.host
-      .getBridgeAddress(effects, {
-        packageId: nodePackageId,
-        hostId: nodeStratumHostId,
-        internalPort,
-        ssl: false,
-      })
-      .const()
-      .catch(() => null)
-
-  const stratum =
-    (await bridgeTo(nodeStratumApiPort)) ??
-    (await bridgeTo(nodeStratumApiPortLegacy))
+  const stratum = await sdk.host
+    .getBridgeAddress(effects, {
+      packageId: nodePackageId,
+      hostId: nodeStratumHostId,
+      internalPort: nodeStratumApiPort,
+      ssl: false,
+    })
+    .const()
+    .catch(() => null)
   if (!stratum) {
     throw new Error(
       i18n('Waiting for the Quai Network node to become reachable'),
     )
   }
 
-  // Zone RPC is optional: go-quai only exports it when RPC sharing is switched
-  // on. Without it the dashboard simply omits reward and difficulty estimates.
+  // Present only while the node's RPC sharing is on.
   const rpc = await sdk.host
     .getBridgeAddress(effects, {
       packageId: nodePackageId,
@@ -52,9 +43,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     .const()
     .catch(() => null)
 
-  // The external ports StartOS assigned to the node's stratum interfaces. These
-  // are what miners must connect to, and they are often not the defaults: any
-  // other package holding 3333 (Public Pool, for one) pushes ours elsewhere.
+  // The node's preferred stratum ports are not guaranteed; show miners the assigned ones.
   const ports = await sdk.host
     .get(
       effects,
@@ -99,7 +88,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
         DASH_DATA: `${mountpoint}/dashboard`,
         DASH_STRATUM: `http://${stratum}`,
         DASH_RPC: rpc ? `http://${rpc}` : '',
-        DASH_HEALTH: '',
         DASH_STRATUM_PORTS: ports || '',
       },
     },

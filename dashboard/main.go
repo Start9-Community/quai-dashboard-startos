@@ -53,9 +53,6 @@ const (
 	fileMode      = 0o644
 	dirMode       = 0o755
 	csvMaxRecords = 20000
-	// ~2 minutes at the default poll interval: long enough to ride out a node
-	// restart, short enough that a stopped node is reflected promptly.
-	maxPollFailures = 8
 )
 
 func env(key, def string) string {
@@ -191,13 +188,7 @@ type collector struct {
 	lastCnt      map[string][3]uint64
 	stratumPorts map[string]int
 	dirty        bool
-	// Consecutive failed polls. The dashboard is useless without the node, so
-	// after a short grace period it exits and lets StartOS restart it: the
-	// dependency check then parks the service until the node is back, instead
-	// of leaving a live-looking page that cannot see anything.
-	failures int
-	giveUp   func()
-	gaveUp   bool
+	failures     int // consecutive failed polls
 	// Saves must not overlap: shutdown triggers one from the collector loop and
 	// one from main, and two writers sharing a temp file produced a truncated
 	// stats.json that lost every recorded submission.
@@ -422,17 +413,15 @@ func (c *collector) poll() {
 		c.failures++
 		n := c.failures
 		c.mu.Unlock()
-		log.Printf("dashboard: stratum stats unavailable at %s (attempt %d): %v", c.stratum, n, err)
-		if n >= maxPollFailures && c.giveUp != nil {
-			log.Printf("dashboard: the Quai node has not answered for %d polls; stopping so StartOS can restart us when it is back", n)
-			c.mu.Lock()
-			c.gaveUp = true
-			c.mu.Unlock()
-			c.giveUp()
+		if n == 1 {
+			log.Printf("dashboard: stratum stats unavailable at %s: %v", c.stratum, err)
 		}
 		return
 	}
 	c.mu.Lock()
+	if c.failures > 0 {
+		log.Printf("dashboard: stratum stats reachable again after %d failed polls", c.failures)
+	}
 	c.failures = 0
 	c.mu.Unlock()
 	var raws []rawWorker
@@ -1151,7 +1140,7 @@ func main() {
 		addr    = env("DASH_ADDR", ":8080")
 		assets  = env("DASH_ASSETS", "/opt/dashboard")
 		dataDir = env("DASH_DATA", "/data/dashboard")
-		stratum = env("DASH_STRATUM", "http://127.0.0.1:3336")
+		stratum = env("DASH_STRATUM", "http://127.0.0.1:3306")
 		// Optional: only set when go-quai shares them. Empty disables the probe.
 		health = os.Getenv("DASH_HEALTH")
 		rpc    = os.Getenv("DASH_RPC")
@@ -1179,7 +1168,6 @@ func main() {
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer stop()
-	c.giveUp = stop // unreachable node: shut down cleanly and let StartOS restart us
 	go c.run(ctx)
 
 	mux := http.NewServeMux()
@@ -1212,14 +1200,5 @@ func main() {
 		log.Fatalf("dashboard: %v", err)
 	}
 	c.save()
-	c.mu.RLock()
-	gaveUp := c.gaveUp
-	c.mu.RUnlock()
-	if gaveUp {
-		// Exit non-zero: this is a failure (the node went away), not a stop
-		// requested by the user, and StartOS should restart us for it.
-		log.Printf("dashboard: stopped because the Quai node is unreachable")
-		os.Exit(1)
-	}
 	log.Printf("dashboard: stopped")
 }

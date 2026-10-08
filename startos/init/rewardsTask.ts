@@ -8,7 +8,7 @@ export const rewardsTask = sdk.setupOnInit(async (effects) => {
   if (choice !== 'enabled' && choice !== 'declined') {
     await sdk.action.createOwnTask(effects, confirmedRewards, 'important', {
       reason: i18n(
-        "Decide whether the dashboard may use the node's RPC to show what each workshare actually paid. It runs either way.",
+        'Choose whether to ask the Quai Network node to share its RPC, which the dashboard needs to show what each workshare actually paid. The dashboard runs either way.',
       ),
     })
   }

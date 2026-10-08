@@ -116,8 +116,9 @@ accumulates from the first start.
 
 ## Actions
 
-**Confirmed rewards** — whether the dashboard may use the node's RPC to classify
-each submission and report what it actually paid. Instant and safe to repeat.
+**Confirmed rewards** — whether to ask the node to share its RPC, which the
+dashboard needs to classify each submission and report what it actually paid.
+Instant and safe to repeat.
 
 Answering yes stores the answer and raises a task on the Quai Network package's
 Settings action with RPC sharing pre-filled; nothing on the node changes until

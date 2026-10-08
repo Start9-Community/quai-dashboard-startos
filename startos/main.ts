@@ -1,3 +1,4 @@
+import { dependencies } from './dependencies'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
 import {
@@ -14,7 +15,7 @@ import {
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info(i18n('Starting the Quai mining dashboard'))
 
-  const depResult = await sdk.checkDependencies(effects)
+  const depResult = await dependencies.check(effects)
   depResult.throwIfNotSatisfied()
 
   const stratum = await sdk.host

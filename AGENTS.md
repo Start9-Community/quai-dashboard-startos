@@ -12,17 +12,29 @@ admin credentials", "expose a web UI") to the constructs, the reference pages, a
 package to copy. Find the recipe before you read this package's neighbours: a package you reach by
 grepping may be non-conformant, and the recipe outranks it.
 
-Keep `README.md` (technical reference for an AI support or administering agent) and `instructions.md` (end-user docs) in sync with your changes.
+Freshly scaffolded? Work the
+[New Package Checklist](../start-technologies/projects/start-sdk/docs/src/new-package-checklist.md)
+(or <https://docs.start9.com/packaging/new-package-checklist.html>) from top to bottom. It is a
+guide page, not a file in this repo — read it, don't copy it in.
+
+Keep `README.md` (technical reference for an AI support or administering agent) and
+`instructions.md` (end-user docs) in sync with your changes. This file restates neither:
+whoever changes the package has both, so it carries only what they don't — repo mechanics,
+a change that looks right and is not, where the next thing gets added, a naming trap, a
+build or test invocation particular to this repo.
+
+**Fix a defect you spot rather than reporting it** — you have the package open and the
+context to be sure. File **a GitHub issue on this repo** only when the call isn't yours to
+make: you can't pin the cause down, two defensible fixes exist, or it's too large to ride on
+the work in hand. An open issue is a report, not a queue — implement one when you're asked
+to or when it's labelled `Approved`, then close it with `Closes #<n>`.
+
+Don't record work in the repo instead: no `TODO.md`, no `NOTES.md`, no `PLAN.md`. What you
+verified, tried, and decided belongs in the commit message and the PR body.
 
 ## This repo
 
-- **Ids and ports of the node come from `go-quai-startos`, never a local copy.** `startos/utils.ts` imports them, so a rename there fails this build instead of the runtime.
-- **Land a node-package change first, then refresh this lockfile.** `package.json` tracks `go-quai-startos#next` and `npm ci` installs whatever commit the lock names; `npm update` does not move a git dependency (see the guide's `maintaining-a-package.md`).
-- **The zone RPC is optional.** Never make the dashboard fail when it is absent: the node only shares it when the user turns it on.
-- **Never change a setting on the node package directly.** Ask with a task on its Settings action, which the user approves there.
-- **Join password options with `_`, never `,`.** go-quai accepts either, but Canaan/Avalon firmware rejects a comma in the password field.
-- **Keep the page free of external requests** — no CDNs, no web fonts, no charting libraries.
-- **Don't bundle Quai's Yapari or Monorama fonts, or the Quai logo.** Quai's media kit treats them as brand resources.
-- **`dashboard/index.html` is the packaged page.** Regenerate the web preview with `scripts/make-dashboard-preview.sh`; don't hand-edit a second copy.
-- **Never let two saves of `stats.json` run at once.** Shutdown triggers a save from both the collector loop and `main`; a shared temp file truncated the history once.
-- **Never mark a workshare missed or orphaned on an incomplete payout scan.** A failed block lookup is not evidence of a missing payment.
+- **Import the node's ids and ports from `go-quai-startos`, never a local copy** — a rename there then fails this build instead of the running dashboard.
+- **Land a node-package change first, then refresh this lockfile** — `npm ci` installs the `go-quai-startos#next` commit the lock names, and `npm update` does not move a git dependency.
+- **Don't bundle Quai's Yapari or Monorama fonts, or the Quai logo** — Quai's media kit treats them as brand resources.
+- **Edit only `dashboard/index.html` and regenerate the web preview with `scripts/make-dashboard-preview.sh`** — the preview is a derived copy.

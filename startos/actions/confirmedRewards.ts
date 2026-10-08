@@ -21,7 +21,7 @@ export const confirmedRewards = sdk.Action.withInput(
   async () => ({
     name: i18n('Confirmed rewards'),
     description: i18n(
-      "Decide whether the dashboard may use the node's RPC to show what each workshare actually paid.",
+      'Choose whether to ask the Quai Network node to share its RPC, which the dashboard needs to show what each workshare actually paid. Yes raises a task on Quai Network to turn RPC sharing on; No raises nothing. Whatever you answer, the dashboard uses the RPC whenever the node shares it.',
     ),
     warning: null,
     allowedStatuses: 'any',

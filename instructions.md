@@ -8,7 +8,7 @@ The dashboard starts only once your **Quai Network** service is running and full
 
 ## Getting set up
 
-1. Answer the **Confirmed rewards** task. Say yes if you want the dashboard to show what each workshare actually paid; it then asks the Quai Network service to share its RPC, and you approve that on Quai Network's page by saving its **Settings**. That RPC has no password, so anything that can reach your node can query it. Say no and the dashboard shows estimates instead. It runs either way.
+1. Answer the **Confirmed rewards** task. Say yes if you want the dashboard to show what each workshare actually paid; it then asks the Quai Network service to share its RPC, and you approve that on Quai Network's page by saving its **Settings**. That RPC has no password, so anything that can reach your node can query it. Say no and nothing is asked of the node; without its RPC the dashboard shows estimates. It runs either way.
 2. Start the service and open the **Mining Dashboard** interface.
 3. Open **How to connect** and copy the pool URL, username and password for your hardware into your miners.
 
